@@ -42,7 +42,7 @@ Esquemático de Ligação:
  
  Conexões:
 
-DHT11:
+DHT22:
 
 VCC → 3.3V
 
