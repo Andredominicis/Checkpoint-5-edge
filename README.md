@@ -2,37 +2,38 @@
 
 
 
+Projeto IoT – Monitoramento de Temperatura, Umidade e Luminosidade via ESP32 e MQTT
+ 
+ 
+ Descrição Geral
 
-Projeto IoT – Monitoramento de Temperatura, Umidade e Luminosidade com ESP32 e MQTT
- Descrição do Projeto:
+Este projeto tem como objetivo monitorar a temperatura, umidade e luminosidade ambiente utilizando um ESP32, com sensores DHT22 e LDR, e enviar os dados para um servidor MQTT público (broker.hivemq.com).
+As informações podem ser visualizadas e controladas em tempo real através do aplicativo MyMQTT, que atua como cliente MQTT.
 
-Este projeto implementa um sistema de Internet das Coisas (IoT) utilizando o ESP32, que realiza a leitura dos sensores DHT11 (temperatura e umidade) e LDR (luminosidade), enviando os dados para um broker MQTT público, permitindo a visualização e o controle remoto via o aplicativo MyMQTT.
 
-O sistema também foi desenvolvido e testado no simulador Wokwi, garantindo reprodutibilidade e fácil implementação em ambientes físicos.
 
- Simulação no Wokwi:
-https://wokwi.com/projects/382224488947921921
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
  
- Objetivo:
+Objetivos:
 
-Demonstrar a integração entre sensores físicos e uma plataforma de comunicação IoT via protocolo MQTT, possibilitando:
+Realizar leitura contínua de temperatura, umidade e luminosidade.
 
-Monitorar em tempo real temperatura, umidade e luminosidade;
+Publicar os dados em um broker MQTT público.
 
-Enviar e receber dados do MyMQTT;
+Visualizar e interagir com os dados via aplicativo MyMQTT.
 
-Estabelecer a comunicação entre o ESP32, o broker MQTT e o aplicativo móvel.
+Permitir a replicação do projeto em qualquer ambiente com ESP32.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Componentes Utilizados:
-| Componente          | Função                               | Pino ESP32 |
-| ------------------- | ------------------------------------ | ---------- |
-| DHT11               | Medir temperatura e umidade          | GPIO 15    |
-| LDR + resistor 10kΩ | Medir luminosidade                   | GPIO 34    |
-| ESP32 DevKit V1     | Microcontrolador com Wi-Fi integrado | —          |
+| Componente             | Função                          | Pino ESP32              |
+| ---------------------- | ------------------------------- | ----------------------- |
+| ESP32 DevKit V1        | Microcontrolador principal      | -                       |
+| DHT22                  | Sensor de temperatura e umidade | D15                     |
+| LDR + resistor de 10kΩ | Sensor de luminosidade          | D34 (entrada analógica) |
+| LED                    | Indicador de atividade          | D2 (onboard)            |
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,42 +52,47 @@ DATA → GPIO 15
 
 LDR:
 
-LDR + resistor de 10kΩ formam um divisor de tensão
-
-O ponto médio → GPIO 34
-
 Um lado → 3.3V
 
-Outro lado → GND
+Outro lado → D34 + resistor 10kΩ para o GND
+
+LED: (onboard)
+
+D2 → LED integrado do ESP32
 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Configuração do MyMQTT:
+Configuração do Aplicativo MyMQTT:
 
-Baixar o aplicativo MyMQTT (Android);
+Host: broker.hivemq.com
 
-Abrir o app e criar uma nova conexão:
+Port: 1883
 
-Broker: test.mosquitto.org
+SSL: Desativado
 
-Porta: 1883
+Protocol: MQTT v3
 
-Client ID: MyMQTT_Andre
+Username e Password: (deixe em branco)
 
-QoS: 0
+Client ID: Celular_Andre (ou qualquer outro nome)
 
-Após conectar, adicionar os tópicos:
+Assinatura (subscribe):
 
-andre5623/temperatura
+/andre5623/esp32/attrs
 
-andre5623/umidade
 
-andre5623/luminosidade
+Publicação (publish):
 
-Visualize as mensagens sendo publicadas a cada 5 segundos.
+/andre5623/esp32/cmd
 
+
+Comandos aceitos:
+
+LED_ON → liga o LED
+
+LED_OFF → desliga o LED
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +102,7 @@ Broker MQTT Público
 
 O projeto utiliza o broker gratuito e aberto:
 
-Broker: test.mosquitto.org
+Broker: broker.hivemq.com
 
 Porta: 1883
 
@@ -108,16 +114,32 @@ Porta: 1883
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
- Conclusão
+Funcionamento Geral:
 
-O projeto demonstra com sucesso:
+O ESP32 lê temperatura, umidade e luminosidade a cada 5 segundos.
 
-A coleta de dados ambientais via sensores DHT11 e LDR;
+Envia os dados em formato JSON para o tópico MQTT.
 
-A transmissão via protocolo MQTT;
+O aplicativo MyMQTT recebe os dados em tempo real.
 
-A integração entre hardware e aplicativo móvel;
+O usuário pode enviar comandos para ligar/desligar o LED remotamente.
 
-O uso de brokers públicos para aplicações educacionais de IoT.
 
-Essa implementação reforça conceitos fundamentais de IoT, conectividade Wi-Fi, comunicação assíncrona e monitoramento remoto.
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+Como Replicar o Projeto:
+
+Crie uma conta no Wokwi
+
+Monte o circuito conforme o esquema.
+
+Copie o código disponibilizado neste repositorio e rode a simulação.
+
+No celular, configure o MyMQTT com os parâmetros indicados.
+
+Observe os dados sendo recebidos em tempo real e envie comandos.
