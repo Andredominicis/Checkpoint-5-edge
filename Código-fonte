@@ -3,14 +3,14 @@
 #include <DHT.h>
 
 // --- CONFIGURAÇÕES DHT22 ---
-#define DHTPIN 15
-#define DHTTYPE DHT22
+#define DHTPIN 4 
+#define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
 // --- CONFIGURAÇÕES MQTT ---
-const char* SSID = "Wokwi-GUEST";
-const char* PASSWORD = "";
-const char* BROKER_MQTT = "broker.hivemq.com";
+const char* SSID = "FIAP-IOT";
+const char* PASSWORD = "F!@p25.IOT";
+const char* BROKER_MQTT = "54.227.182.115";
 const int BROKER_PORT = 1883;
 
 const char* TOPICO_SUBSCRIBE = "andre5623/cmd";
@@ -19,7 +19,7 @@ const char* ID_MQTT = "ESP32_Andre5623";
 
 // --- PINOS ---
 const int LED_PIN = 2;
-const int LDR_PIN = 34;  // sensor de luminosidade (potenciômetro no Wokwi)
+const int LDR_PIN = 34;  // sensor de luminosidade
 
 // --- OBJETOS ---
 WiFiClient espClient;
@@ -36,11 +36,21 @@ void initSerial() {
 void initWiFi() {
   Serial.println("Conectando-se à rede Wi-Fi...");
   WiFi.begin(SSID, PASSWORD);
+  
+  // Timeout de conexão Wi-Fi
+  unsigned long startMillis = millis();
   while (WiFi.status() != WL_CONNECTED) {
-    delay(200);
+    delay(500);
     Serial.print(".");
+    
+    // Timeout de 10 segundos
+    if (millis() - startMillis >= 10000) {
+      Serial.println("\nFalha na conexão Wi-Fi.");
+      return;
+    }
   }
-  Serial.println("\n Wi-Fi conectado!");
+  
+  Serial.println("\nWi-Fi conectado!");
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 }
@@ -53,7 +63,7 @@ void initMQTT() {
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   String msg;
   for (int i = 0; i < length; i++) msg += (char)payload[i];
-  Serial.print(" Mensagem recebida: ");
+  Serial.print("Mensagem recebida: ");
   Serial.println(msg);
 
   if (msg.equalsIgnoreCase("ON")) {
@@ -87,14 +97,14 @@ void sendSensorData() {
   int luminosity = map(sensorValue, 0, 4095, 0, 100);
 
   if (isnan(temperature) || isnan(humidity)) {
-    Serial.println(" Falha ao ler o DHT22. Mantendo dados anteriores...");
+    Serial.println("Falha ao ler o DHT22. Mantendo dados anteriores...");
     return;
   }
 
   String payload = String("{\"temp\":") + temperature +
                    ",\"umid\":" + humidity +
                    ",\"lum\":" + luminosity + "}";
-  Serial.print(" Publicando: ");
+  Serial.print("Publicando: ");
   Serial.println(payload);
   MQTT.publish(TOPICO_PUBLISH, payload.c_str());
 }
